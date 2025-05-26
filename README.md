@@ -87,6 +87,7 @@ The bot supports both traditional prefix commands (e.g., `!help`) and slash comm
 
 - `!help` or `/help` - Show available commands
 - `!verify <license_key>` or `/verify` - Verify a license key
+- `!redeem <license_key>` or `/redeem` - Redeem a license key for yourself
 - `!list` or `/list` - List your licenses
 
 ### Admin Commands
