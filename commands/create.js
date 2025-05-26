@@ -14,6 +14,19 @@ const validGames = [
   { name: 'Counter-Strike 2', value: 'cs2', prefix: 'CS2' }
 ];
 
+// Define license durations
+const durations = [
+  { name: '1 Day', value: 'day_1', days: 1 },
+  { name: '3 Days', value: 'day_3', days: 3 },
+  { name: '7 Days', value: 'day_7', days: 7 },
+  { name: '1 Month', value: 'month_1', days: 30 },
+  { name: '3 Months', value: 'month_3', days: 90 },
+  { name: '6 Months', value: 'month_6', days: 180 },
+  { name: '9 Months', value: 'month_9', days: 270 },
+  { name: '1 Year', value: 'month_12', days: 365 },
+  { name: 'Lifetime', value: 'lifetime', days: null }
+];
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('create')
@@ -31,15 +44,23 @@ module.exports = {
       
       return gameOption;
     })
+    .addStringOption(option => {
+      const durationOption = option
+        .setName('duration')
+        .setDescription('Duration of the license')
+        .setRequired(true);
+      
+      // Add each duration as a choice
+      durations.forEach(duration => {
+        durationOption.addChoices({ name: duration.name, value: duration.value });
+      });
+      
+      return durationOption;
+    })
     .addStringOption(option => 
       option.setName('email')
         .setDescription('Email to associate with the license')
-        .setRequired(false))
-    .addIntegerOption(option => 
-      option.setName('expiration_days')
-        .setDescription('Number of days until the license expires')
-        .setRequired(false)
-        .setMinValue(1)),
+        .setRequired(false)),
   
   async execute(interaction) {
     try {
@@ -61,13 +82,19 @@ module.exports = {
 
       // Get options from the interaction
       const gameValue = interaction.options.getString('game');
+      const durationValue = interaction.options.getString('duration');
       const email = interaction.options.getString('email');
-      const expirationDays = interaction.options.getInteger('expiration_days');
 
       // Validate game
       const gameInfo = validGames.find(g => g.value === gameValue);
       if (!gameInfo) {
         return await handler.ephemeralReply(`Invalid game. Please select one of the available options.`);
+      }
+
+      // Validate and get duration
+      const durationInfo = durations.find(d => d.value === durationValue);
+      if (!durationInfo) {
+        return await handler.ephemeralReply(`Invalid duration. Please select one of the available options.`);
       }
 
       // Generate license key with game prefix
@@ -77,8 +104,9 @@ module.exports = {
       const issueDate = Math.floor(Date.now() / 1000);
       let expirationDate = null;
       
-      if (expirationDays && !isNaN(expirationDays)) {
-        expirationDate = issueDate + (expirationDays * 86400); // Convert days to seconds
+      // Set expiration date if not lifetime
+      if (durationInfo.days !== null) {
+        expirationDate = issueDate + (durationInfo.days * 86400); // Convert days to seconds
       }
       
       const licenseData = {
@@ -94,10 +122,10 @@ module.exports = {
       const licenseId = await addLicense(licenseData);
       
       // Format expiration information
-      let expirationInfo = 'never expires';
+      let expirationInfo = 'never expires (Lifetime)';
       if (expirationDate) {
         const expirationDateObj = new Date(expirationDate * 1000);
-        expirationInfo = `expires on ${expirationDateObj.toLocaleDateString()}`;
+        expirationInfo = `expires on ${expirationDateObj.toLocaleDateString()} (${durationInfo.name})`;
       }
       
       // Generate response message
@@ -146,20 +174,28 @@ module.exports = {
     }
 
     // Validate arguments
-    if (args.length < 1) {
+    if (args.length < 2) {
       const gameList = validGames.map(g => g.value).join(', ');
-      return await handler.reply(`Usage: !create <game> [email] [expiration_days]\nAvailable games: ${gameList}`);
+      const durationList = durations.map(d => d.value).join(', ');
+      return await handler.reply(`Usage: !create <game> <duration> [email]\nAvailable games: ${gameList}\nAvailable durations: ${durationList}`);
     }
 
     const gameValue = args[0].toLowerCase();
-    const email = args.length > 1 ? args[1] : null;
-    const expirationDays = args.length > 2 ? parseInt(args[2]) : null;
+    const durationValue = args[1].toLowerCase();
+    const email = args.length > 2 ? args[2] : null;
 
     // Validate game
     const gameInfo = validGames.find(g => g.value === gameValue);
     if (!gameInfo) {
       const gameList = validGames.map(g => g.value).join(', ');
       return await handler.reply(`Invalid game. Please use one of: ${gameList}`);
+    }
+
+    // Validate duration
+    const durationInfo = durations.find(d => d.value === durationValue);
+    if (!durationInfo) {
+      const durationList = durations.map(d => d.value).join(', ');
+      return await handler.reply(`Invalid duration. Please use one of: ${durationList}`);
     }
 
     // Generate license key with game prefix
@@ -169,8 +205,9 @@ module.exports = {
     const issueDate = Math.floor(Date.now() / 1000);
     let expirationDate = null;
     
-    if (expirationDays && !isNaN(expirationDays)) {
-      expirationDate = issueDate + (expirationDays * 86400); // Convert days to seconds
+    // Set expiration date if not lifetime
+    if (durationInfo.days !== null) {
+      expirationDate = issueDate + (durationInfo.days * 86400); // Convert days to seconds
     }
     
     const licenseData = {
@@ -187,10 +224,10 @@ module.exports = {
       const licenseId = await addLicense(licenseData);
       
       // Format expiration information
-      let expirationInfo = 'never expires';
+      let expirationInfo = 'never expires (Lifetime)';
       if (expirationDate) {
         const expirationDateObj = new Date(expirationDate * 1000);
-        expirationInfo = `expires on ${expirationDateObj.toLocaleDateString()}`;
+        expirationInfo = `expires on ${expirationDateObj.toLocaleDateString()} (${durationInfo.name})`;
       }
       
       // Send success message

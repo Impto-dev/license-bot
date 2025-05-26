@@ -7,7 +7,7 @@ A Discord bot for managing software licenses for various games including Fortnit
 - Generate and manage license keys for multiple game categories
 - Assign licenses to Discord users
 - Verify license validity
-- Set expiration dates for licenses
+- Set predefined license durations (1/3/7 days, 1/3/6/9/12 months, or lifetime)
 - Revoke or delete licenses
 - Track license usage
 - Support for both prefix commands and slash commands
@@ -92,11 +92,17 @@ The bot supports both traditional prefix commands (e.g., `!help`) and slash comm
 
 ### Admin Commands
 
-- `!create <game> [email] [expiration_days]` or `/create` - Create a new license
+- `!create <game> <duration> [email]` or `/create` - Create a new license
 - `!assign <license_key> <@user>` or `/assign` - Assign a license to a user
 - `!revoke <license_key>` or `/revoke` - Revoke/deactivate a license
 - `!delete <license_key>` or `/delete` - Delete a license from the database
 - `!list <@user>` or `/list` - List licenses for another user
+
+### Available Durations
+
+- 1 Day, 3 Days, 7 Days
+- 1 Month, 3 Months, 6 Months, 9 Months, 1 Year
+- Lifetime
 
 ## Troubleshooting
 

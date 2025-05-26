@@ -27,11 +27,14 @@ module.exports = {
       // Admin-only commands
       if (isUserAdmin) {
         helpText += `**Admin Commands:**\n`;
-        helpText += `\`${prefix}create <game> [email] [expiration_days]\` or \`/create\` - Create a new license\n`;
+        helpText += `\`${prefix}create <game> <duration> [email]\` or \`/create\` - Create a new license\n`;
         helpText += `\`${prefix}assign <license_key> <@user>\` or \`/assign\` - Assign a license to a user\n`;
         helpText += `\`${prefix}revoke <license_key>\` or \`/revoke\` - Revoke/deactivate a license\n`;
         helpText += `\`${prefix}delete <license_key>\` or \`/delete\` - Delete a license from the database\n`;
-        helpText += `\`${prefix}list <@user>\` or \`/list\` - List licenses for another user\n`;
+        helpText += `\`${prefix}list <@user>\` or \`/list\` - List licenses for another user\n\n`;
+        
+        helpText += `**Available Durations:**\n`;
+        helpText += `1 Day, 3 Days, 7 Days, 1 Month, 3 Months, 6 Months, 9 Months, 1 Year, Lifetime\n`;
       }
 
       helpText += `\n**Available Games:**\n`;
@@ -73,11 +76,14 @@ module.exports = {
     // Admin-only commands
     if (isUserAdmin) {
       helpText += `**Admin Commands:**\n`;
-      helpText += `\`${prefix}create <game> [email] [expiration_days]\` or \`/create\` - Create a new license\n`;
+      helpText += `\`${prefix}create <game> <duration> [email]\` or \`/create\` - Create a new license\n`;
       helpText += `\`${prefix}assign <license_key> <@user>\` or \`/assign\` - Assign a license to a user\n`;
       helpText += `\`${prefix}revoke <license_key>\` or \`/revoke\` - Revoke/deactivate a license\n`;
       helpText += `\`${prefix}delete <license_key>\` or \`/delete\` - Delete a license from the database\n`;
-      helpText += `\`${prefix}list <@user>\` or \`/list\` - List licenses for another user\n`;
+      helpText += `\`${prefix}list <@user>\` or \`/list\` - List licenses for another user\n\n`;
+      
+      helpText += `**Available Durations:**\n`;
+      helpText += `1 Day, 3 Days, 7 Days, 1 Month, 3 Months, 6 Months, 9 Months, 1 Year, Lifetime\n`;
     }
 
     helpText += `\n**Available Games:**\n`;
