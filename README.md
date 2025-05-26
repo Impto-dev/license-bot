@@ -1,235 +1,329 @@
 # Discord License Manager Bot
 
-A Discord bot for managing software licenses for various games including Fortnite, FiveM, GTA V, Escape From Tarkov, Black Ops 6, Warzone, and Counter-Strike 2.
+A comprehensive Discord bot for managing software licenses for various games (Fortnite, FiveM, GTA V, etc.) with REST API integration, analytics dashboard, and C# client integration.
 
-## Features
+## 📋 Table of Contents
 
-- Generate and manage license keys for multiple game categories
-- Assign licenses to Discord users
-- Verify license validity
-- Set predefined license durations (1/3/7 days, 1/3/6/9/12 months, or lifetime)
-- Revoke or delete licenses
-- Track license usage
-- Support for both prefix commands and slash commands
-- REST API for license validation from external applications
+- [Features](#features)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Command Usage](#command-usage)
+  - [Basic Commands](#basic-commands)
+  - [License Management](#license-management)
+  - [Advanced Features](#advanced-features)
+- [API Documentation](#api-documentation)
+- [Analytics Dashboard](#analytics-dashboard)
+- [C# Integration](#c-integration)
+- [Security Features](#security-features)
+- [Testing](#testing)
+- [Project Structure](#project-structure)
+- [Development Plan](#development-plan)
 
-## Setup Instructions
+## ✨ Features
 
-### Prerequisites
+### Core Functionality
+- **License Generation**: Create unique, secure license keys with custom prefixes
+- **Game Categories**: Support for various games (Fortnite, FiveM, GTA V, etc.)
+- **Flexible Durations**: Preset license durations from 1 day to lifetime
+- **User Assignment**: Assign licenses to Discord users
+- **Verification**: Verify license validity with detailed information
 
-- Node.js 16.x or higher
-- A Discord account and a registered Discord application/bot
+### Advanced Features
+- **Bulk Operations**: Generate multiple licenses at once with customization options
+- **Renewal System**: Extend or renew licenses with comprehensive renewal history
+- **REST API**: External validation and integration capabilities
+- **Analytics Dashboard**: Visualize license data with filtering and real-time charts
+- **Admin Configuration**: In-Discord bot configuration management
+- **Security**: Rate limiting, request logging, and database backups
 
-### Step 1: Create a Discord Bot
+## 🚀 Installation
 
-1. Go to the [Discord Developer Portal](https://discord.com/developers/applications)
-2. Click "New Application" and give it a name
-3. Go to the "Bot" tab and click "Add Bot"
-4. Under the "TOKEN" section, click "Copy" to copy your bot token
-5. Under "Privileged Gateway Intents", **IMPORTANT**: Enable the following intents:
-   - **Message Content Intent** (required for prefix commands)
-   - Server Members Intent (optional)
-6. Note your application ID from the "General Information" tab (needed for slash commands)
-
-### Step 2: Invite the Bot to Your Server
-
-1. Go to the "OAuth2" > "URL Generator" tab
-2. Select the following scopes:
-   - `bot`
-   - `applications.commands`
-3. Select the following bot permissions:
-   - "Read Messages/View Channels"
-   - "Send Messages"
-   - "Read Message History"
-4. Copy the generated URL and open it in your browser
-5. Select your server and authorize the bot
-
-### Step 3: Configure the Bot
-
-1. Clone this repository
-2. Install dependencies:
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/discord-license-manager.git
+   cd discord-license-manager
    ```
+
+2. Install dependencies:
+   ```bash
    npm install
    ```
-3. Run the setup script to configure your bot:
+
+3. Create a `.env` file with the following content:
    ```
-   npm run setup
+   BOT_TOKEN=your_discord_bot_token
+   CLIENT_ID=your_discord_client_id
+   GUILD_ID=your_discord_server_id
+   API_PORT=3000
+   DASHBOARD_PORT=3001
+   DASHBOARD_TOKEN=your_dashboard_access_token
    ```
-   Follow the prompts to enter your:
-   - Discord bot token
-   - Discord application ID (for slash commands)
-   - Command prefix (default is `!`)
-   - Your Discord user ID (for owner privileges)
-   - Additional admin user IDs (comma-separated)
 
-Alternatively, you can manually create a `.env` file based on the `.env-example` template.
+4. Set up the database and deploy commands:
+   ```bash
+   node setup.js
+   node deploy-commands.js
+   ```
 
-### Step 4: Register Slash Commands
+5. Start the bot:
+   ```bash
+   node index.js
+   ```
 
-To register slash commands with Discord:
+## ⚙️ Configuration
 
-```
-npm run deploy
-```
+The bot configuration is stored in `config.json` and can be modified using the `/config` command or by directly editing the file:
 
-This only needs to be done once after setting up or when you modify command definitions.
-
-### Step 5: Run the Bot
-
-```
-npm start
-```
-
-## Command Usage
-
-The bot supports both traditional prefix commands (e.g., `!help`) and slash commands (e.g., `/help`).
-
-### General Commands
-
-- `!help` or `/help` - Show available commands
-- `!verify <license_key>` or `/verify` - Verify a license key
-- `!redeem <license_key>` or `/redeem` - Redeem a license key for yourself
-- `!list` or `/list` - List your licenses
-
-### Admin Commands
-
-- `!create <game> <duration> [email]` or `/create` - Create a new license
-- `!assign <license_key> <@user>` or `/assign` - Assign a license to a user
-- `!revoke <license_key>` or `/revoke` - Revoke/deactivate a license
-- `!delete <license_key>` or `/delete` - Delete a license from the database
-- `!list <@user>` or `/list` - List licenses for another user
-- `!config view` or `/config view` - View current configuration
-- `!config set <setting> <value>` or `/config set` - Update configuration settings
-
-### Available Durations
-
-- 1 Day, 3 Days, 7 Days
-- 1 Month, 3 Months, 6 Months, 9 Months, 1 Year
-- Lifetime
-
-## REST API
-
-The application includes a REST API that allows external applications to validate licenses. This is particularly useful for integrating license validation into your own software.
-
-### Starting the API Server
-
-The API server runs separately from the Discord bot:
-
-```
-node api.js
-```
-
-By default, the API server runs on port 3000. You can change this by setting the `API_PORT` environment variable in your `.env` file.
-
-### API Endpoints
-
-#### License Validation
-
-**URL:** `/api/validate`
-**Method:** `POST`
-**Body:**
 ```json
 {
-  "licenseKey": "YOUR-LICENSE-KEY"
+  "prefix": "!",
+  "adminUsers": ["user_id_1", "user_id_2"],
+  "adminRoles": ["role_id_1", "role_id_2"],
+  "allowedChannels": ["channel_id_1", "channel_id_2"]
 }
 ```
 
-**Response:**
+Use the `/config` command for real-time configuration changes:
+- `/config set admin @user` - Add a user as admin
+- `/config remove admin @user` - Remove admin privileges
+- `/config list admins` - Show all admin users and roles
+
+## 💬 Command Usage
+
+### Basic Commands
+
+#### Help Command
+View all available commands and their descriptions:
+```
+/help [command]
+```
+
+#### License Creation
+Create a new license with specified parameters:
+```
+/create game:<game> duration:<duration> [email:<email>]
+```
+Example:
+```
+/create game:fortnite duration:month_1 email:user@example.com
+```
+
+#### License Verification
+Check if a license is valid and view its details:
+```
+/verify key:<license_key>
+```
+
+### License Management
+
+#### Assign License
+Assign a license to a Discord user:
+```
+/assign key:<license_key> user:<@user>
+```
+
+#### Revoke License
+Revoke a license from a user:
+```
+/revoke key:<license_key>
+```
+
+#### Delete License
+Permanently delete a license from the database:
+```
+/delete key:<license_key>
+```
+
+#### List Licenses
+List all licenses for a specific user or game:
+```
+/list [user:<@user>] [game:<game>]
+```
+
+### Advanced Features
+
+#### Bulk License Generation
+Generate multiple licenses at once:
+```
+/bulk game:<game> duration:<duration> count:<number> [prefix:<prefix>] [email:<domain>]
+```
+Example:
+```
+/bulk game:fivem duration:month_3 count:10 prefix:SPECIAL email:company.com
+```
+
+#### License Renewal
+Renew or extend an existing license:
+```
+/renew license_key:<key> duration:<duration> [extend:true|false]
+```
+The `extend` option lets you add time to the existing expiration date rather than creating a new period from the current date.
+
+## 🌐 API Documentation
+
+The REST API runs on port 3000 by default and provides endpoints for license validation and management.
+
+### Endpoints
+
+#### Validate License
+```
+GET /api/validate/:licenseKey
+```
+Response:
 ```json
 {
-  "success": true,
+  "valid": true,
   "license": {
-    "key": "YOUR-LICENSE-KEY",
-    "game": "Fortnite",
-    "gameCode": "fortnite",
-    "isValid": true,
-    "isActive": true,
-    "isExpired": false,
-    "userId": "123456789012345678",
-    "userName": "Username",
-    "email": "user@example.com",
-    "issueDate": "2023-05-01T12:00:00.000Z",
-    "expirationDate": "2023-06-01T12:00:00.000Z"
+    "key": "F-XXXX-XXXX-XXXX",
+    "game": "fortnite",
+    "expiresAt": "2023-12-31T23:59:59Z",
+    "isActive": true
   }
 }
 ```
 
-### C# Integration
+#### Get License Details
+```
+GET /api/license/:licenseKey
+```
+Response includes all license details, including user assignment and metadata.
 
-The repository includes C# code that demonstrates how to integrate the license validation API into a .NET application:
+#### Rate Limiting
 
-- `LicenseValidator.cs` - A client library for validating licenses
-- `SampleForm.cs` - A sample Windows Forms application that demonstrates usage
+The API implements rate limiting (100 requests per 15 minutes) to prevent abuse.
 
-#### Basic Usage in C#
+## 📊 Analytics Dashboard
+
+The analytics dashboard provides visual insights into your license data and runs on port 3001 by default.
+
+### Features
+
+- **Overview**: Total licenses, active percentage, and recent activity
+- **Game Distribution**: Visualize licenses by game category
+- **License Trends**: Track license creation over time
+- **User Analytics**: Monitor top users and their license usage
+- **License Management**: Search, filter, and view detailed license information
+
+### Access
+
+Access the dashboard at `http://your-server:3001/?token=your_dashboard_token`
+
+## 🔄 C# Integration
+
+The project includes C# integration components for easy incorporation into desktop applications.
+
+### LicenseValidator Library
+
+The `LicenseValidator.cs` library provides methods for:
+- License validation
+- User authentication
+- License activation/deactivation
+
+### Sample Implementation
 
 ```csharp
-// Initialize the validator with the API URL
-var validator = new LicenseValidator("http://localhost:3000");
+using LicenseValidator;
 
-// Validate a license key
-var result = await validator.ValidateLicenseAsync("YOUR-LICENSE-KEY");
+// Create validator instance
+var validator = new LicenseValidator("https://your-api-url.com");
 
-if (result.Success && result.License.IsValid)
-{
-    Console.WriteLine($"Valid license for {result.License.Game}");
-}
-else
-{
-    Console.WriteLine("Invalid license");
-}
+// Validate a license
+bool isValid = await validator.ValidateLicense("LICENSE-KEY");
+
+// Get license details
+var details = await validator.GetLicenseDetails("LICENSE-KEY");
 ```
 
-## Troubleshooting
+## 🔒 Security Features
 
-### "Used disallowed intents" Error
+### Rate Limiting
+Protection against brute force attacks and API abuse with express-rate-limit.
 
-If you see an error like `Error: Used disallowed intents`, you need to enable the required intents in the Discord Developer Portal:
+### Comprehensive Logging
+- **Request Logging**: HTTP requests logged with Morgan
+- **Application Logging**: Structured logging with Winston
+- **Audit Trail**: License operations logged for accountability
 
-1. Go to the [Discord Developer Portal](https://discord.com/developers/applications)
-2. Select your application
-3. Go to the "Bot" tab
-4. Under "Privileged Gateway Intents", enable "Message Content Intent"
-5. Save changes and restart your bot
+### Database Backup System
+- **Scheduled Backups**: Automatic database backups
+- **Rotation System**: Maintains multiple backup versions
+- **Validation**: Integrity checks on backup files
 
-### Command Not Working
+### API Security
+- Secure headers with Helmet
+- CORS protection
+- Input validation and sanitization
 
-If a command isn't working properly:
+## 🧪 Testing
 
-1. Check the console for error messages
-2. Make sure you've registered slash commands with `npm run deploy`
-3. Verify that the bot has the necessary permissions in your Discord server
-4. Try using both the prefix version (`!command`) and slash version (`/command`)
+The project includes comprehensive tests for all functionality:
 
-## How It Works
+### Running Tests
 
-### License Keys
+```bash
+cd test
+npm test
+```
 
-License keys are generated in the format `XXXX-XXXX-XXXX-XXXX` with a prefix indicating the game:
-- Fortnite: F...
-- FiveM: FM...
-- GTA V: GTA...
-- Escape From Tarkov: EFT...
-- Black Ops 6: BO6...
-- Warzone: WZ...
-- Counter-Strike 2: CS2...
+### Test Coverage
 
-### Database
+- **Unit Tests**: Individual components and functions
+- **Integration Tests**: Command workflows and API interactions
+- **End-to-End Tests**: Complete user journeys
+- **Performance Tests**: API load testing and database performance
 
-The bot uses SQLite to store license information locally:
-- `licenses.db` - Contains tables for licenses and usage logs
-- Data is stored in the `./data` directory
+## 📁 Project Structure
 
-### Environment Variables
+```
+discord-license-manager/
+├── commands/              # Discord bot commands
+│   ├── create.js          # License creation command
+│   ├── verify.js          # License verification
+│   ├── bulk.js            # Bulk license generation
+│   ├── renew.js           # License renewal system
+│   └── ...                # Other command files
+├── test/                  # Test files
+│   ├── bulk-operations.test.js
+│   ├── renewal-system.test.js
+│   └── ...                # Other test files
+├── data/                  # Database and data files
+├── backup/                # Database backups
+├── views/                 # Dashboard view templates
+├── public/                # Static assets for dashboard
+├── index.js               # Main bot file
+├── api.js                 # REST API implementation
+├── dashboard.js           # Analytics dashboard
+├── database.js            # Database operations
+├── utils.js               # Utility functions
+├── command-helper.js      # Command utilities
+└── deploy-commands.js     # Command deployment script
+```
 
-The bot uses a `.env` file for configuration:
-- `DISCORD_TOKEN` - Your Discord bot token
-- `CLIENT_ID` - Your Discord application ID (for slash commands)
-- `PREFIX` - Command prefix (default: `!`)
-- `OWNER_ID` - Your Discord user ID for owner privileges
-- `ADMIN_USERS` - Comma-separated list of admin user IDs
-- `API_PORT` - Port for the REST API server (default: 3000)
+## 📝 Development Plan
 
-## License
+This project was developed in 10 phases:
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+1. ✅ **Initial Setup and Core Structure**
+2. ✅ **License Generation and Basic Commands**
+3. ✅ **User Management and License Assignment**
+4. ✅ **Discord Bot Integration**
+5. ✅ **Duration System and Game Categories**
+6. ✅ **REST API Implementation**
+7. ✅ **C# Integration**
+8. ✅ **Enhanced Administration**
+9. ✅ **Security and Robustness**
+10. ✅ **Advanced Features and Deployment**
+
+See the full development plan in `plan.md`
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙏 Acknowledgements
+
+- [Discord.js](https://discord.js.org/) for the Discord bot framework
+- [Express](https://expressjs.com/) for the REST API
+- [SQLite](https://www.sqlite.org/) for the database
+- [Chart.js](https://www.chartjs.org/) for dashboard visualizations
+- [Jest](https://jestjs.io/) for testing framework 
