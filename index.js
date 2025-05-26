@@ -85,8 +85,11 @@ client.on(Events.MessageCreate, async message => {
     // For backwards compatibility with prefix commands
     if (command.executeMessage) {
       await command.executeMessage(message, args);
-    } else {
+    } else if (typeof command.execute === 'function') {
+      // Fallback to execute method if executeMessage doesn't exist
       await command.execute(message, args);
+    } else {
+      console.error(`Command ${commandName} is missing both executeMessage and execute methods`);
     }
   } catch (error) {
     console.error(error);

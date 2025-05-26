@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { REST, Routes } = require('discord.js');
+const { REST, Routes, SlashCommandBuilder } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -13,7 +13,21 @@ for (const file of commandFiles) {
   const command = require(filePath);
   
   if ('data' in command && 'execute' in command) {
-    commands.push(command.data.toJSON());
+    // Check if data is already a SlashCommandBuilder (has toJSON method)
+    if (typeof command.data.toJSON === 'function') {
+      commands.push(command.data.toJSON());
+    } 
+    // For old format commands, create a basic slash command
+    else if (command.data.name) {
+      const slashCommand = new SlashCommandBuilder()
+        .setName(command.data.name)
+        .setDescription(`${command.data.name} command`);
+      
+      commands.push(slashCommand.toJSON());
+      console.log(`[INFO] Auto-converted ${command.data.name} to slash command format`);
+    } else {
+      console.log(`[WARNING] The command at ${filePath} has an invalid data format.`);
+    }
   } else {
     console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
   }
