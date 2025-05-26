@@ -4,7 +4,7 @@
  */
 
 const request = require('supertest');
-const { app } = require('../api');
+const { app, server } = require('../api');
 
 // Mock the rate limiter for testing
 jest.mock('express-rate-limit', () => {
@@ -30,6 +30,13 @@ jest.mock('express-rate-limit', () => {
 describe('API Rate Limiting', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+  
+  // Close the server after all tests
+  afterAll((done) => {
+    server.close(() => {
+      done();
+    });
   });
   
   test('should allow requests under the rate limit', async () => {
