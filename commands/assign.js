@@ -17,18 +17,20 @@ module.exports = {
         .setRequired(true)),
   
   async execute(interaction) {
+    // Create response handler and defer reply
     const handler = createResponseHandler(interaction, true);
+    await handler.defer();
     
     // Check if user has admin privileges
     if (!isAdmin(handler.getUser().id, interaction.client.config)) {
-      return handler.ephemeralReply('You do not have permission to use this command.');
+      return await handler.ephemeralReply('You do not have permission to use this command.');
     }
 
     const licenseKey = interaction.options.getString('license_key').toUpperCase();
     const targetUser = interaction.options.getUser('user');
     
     if (!targetUser) {
-      return handler.ephemeralReply('Please provide a valid user.');
+      return await handler.ephemeralReply('Please provide a valid user.');
     }
     
     try {
@@ -36,16 +38,16 @@ module.exports = {
       const license = await getLicenseByKey(licenseKey);
       
       if (!license) {
-        return handler.ephemeralReply('❌ Invalid license key. This license does not exist.');
+        return await handler.ephemeralReply('❌ Invalid license key. This license does not exist.');
       }
       
       // Assign license to user
       await assignLicense(license.id, targetUser.id, targetUser.username);
       
-      handler.reply(`✅ License \`${licenseKey}\` has been assigned to <@${targetUser.id}>.`);
+      await handler.reply(`✅ License \`${licenseKey}\` has been assigned to <@${targetUser.id}>.`);
     } catch (error) {
       console.error('Error assigning license:', error);
-      handler.ephemeralReply('An error occurred while assigning the license.');
+      await handler.ephemeralReply('An error occurred while assigning the license.');
     }
   },
   
@@ -55,12 +57,12 @@ module.exports = {
     
     // Check if user has admin privileges
     if (!isAdmin(handler.getUser().id, message.client.config)) {
-      return handler.reply('You do not have permission to use this command.');
+      return await handler.reply('You do not have permission to use this command.');
     }
 
     // Validate arguments
     if (args.length < 2) {
-      return handler.reply('Usage: !assign <license_key> <@user>');
+      return await handler.reply('Usage: !assign <license_key> <@user>');
     }
 
     const licenseKey = args[0].toUpperCase();
@@ -70,7 +72,7 @@ module.exports = {
     const userId = userMention.replace(/[<@!>]/g, '');
     
     if (!userId.match(/^\d+$/)) {
-      return handler.reply('Please mention a valid user.');
+      return await handler.reply('Please mention a valid user.');
     }
     
     try {
@@ -78,13 +80,13 @@ module.exports = {
       const license = await getLicenseByKey(licenseKey);
       
       if (!license) {
-        return handler.reply('❌ Invalid license key. This license does not exist.');
+        return await handler.reply('❌ Invalid license key. This license does not exist.');
       }
       
       // Get user information
       const user = await message.client.users.fetch(userId);
       if (!user) {
-        return handler.reply('❌ Could not find that user.');
+        return await handler.reply('❌ Could not find that user.');
       }
       
       const userName = user.username;
@@ -92,10 +94,10 @@ module.exports = {
       // Assign license to user
       await assignLicense(license.id, userId, userName);
       
-      handler.reply(`✅ License \`${licenseKey}\` has been assigned to ${userMention}.`);
+      await handler.reply(`✅ License \`${licenseKey}\` has been assigned to ${userMention}.`);
     } catch (error) {
       console.error('Error assigning license:', error);
-      handler.reply('An error occurred while assigning the license.');
+      await handler.reply('An error occurred while assigning the license.');
     }
   }
 }; 

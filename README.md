@@ -1,16 +1,17 @@
 # Discord License Manager Bot
 
-A Discord bot for managing software licenses for C#, Python, JavaScript, and C++ projects.
+A Discord bot for managing software licenses for various games including Fortnite, FiveM, GTA V, Escape From Tarkov, Black Ops 6, Warzone, and Counter-Strike 2.
 
 ## Features
 
-- Generate and manage license keys for multiple programming languages
+- Generate and manage license keys for multiple game categories
 - Assign licenses to Discord users
 - Verify license validity
-- Set expiration dates for licenses
+- Set predefined license durations (1/3/7 days, 1/3/6/9/12 months, or lifetime)
 - Revoke or delete licenses
 - Track license usage
 - Support for both prefix commands and slash commands
+- REST API for license validation from external applications
 
 ## Setup Instructions
 
@@ -87,15 +88,97 @@ The bot supports both traditional prefix commands (e.g., `!help`) and slash comm
 
 - `!help` or `/help` - Show available commands
 - `!verify <license_key>` or `/verify` - Verify a license key
+- `!redeem <license_key>` or `/redeem` - Redeem a license key for yourself
 - `!list` or `/list` - List your licenses
 
 ### Admin Commands
 
-- `!create <language> [email] [expiration_days]` or `/create` - Create a new license
+- `!create <game> <duration> [email]` or `/create` - Create a new license
 - `!assign <license_key> <@user>` or `/assign` - Assign a license to a user
 - `!revoke <license_key>` or `/revoke` - Revoke/deactivate a license
 - `!delete <license_key>` or `/delete` - Delete a license from the database
 - `!list <@user>` or `/list` - List licenses for another user
+- `!config view` or `/config view` - View current configuration
+- `!config set <setting> <value>` or `/config set` - Update configuration settings
+
+### Available Durations
+
+- 1 Day, 3 Days, 7 Days
+- 1 Month, 3 Months, 6 Months, 9 Months, 1 Year
+- Lifetime
+
+## REST API
+
+The application includes a REST API that allows external applications to validate licenses. This is particularly useful for integrating license validation into your own software.
+
+### Starting the API Server
+
+The API server runs separately from the Discord bot:
+
+```
+node api.js
+```
+
+By default, the API server runs on port 3000. You can change this by setting the `API_PORT` environment variable in your `.env` file.
+
+### API Endpoints
+
+#### License Validation
+
+**URL:** `/api/validate`
+**Method:** `POST`
+**Body:**
+```json
+{
+  "licenseKey": "YOUR-LICENSE-KEY"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "license": {
+    "key": "YOUR-LICENSE-KEY",
+    "game": "Fortnite",
+    "gameCode": "fortnite",
+    "isValid": true,
+    "isActive": true,
+    "isExpired": false,
+    "userId": "123456789012345678",
+    "userName": "Username",
+    "email": "user@example.com",
+    "issueDate": "2023-05-01T12:00:00.000Z",
+    "expirationDate": "2023-06-01T12:00:00.000Z"
+  }
+}
+```
+
+### C# Integration
+
+The repository includes C# code that demonstrates how to integrate the license validation API into a .NET application:
+
+- `LicenseValidator.cs` - A client library for validating licenses
+- `SampleForm.cs` - A sample Windows Forms application that demonstrates usage
+
+#### Basic Usage in C#
+
+```csharp
+// Initialize the validator with the API URL
+var validator = new LicenseValidator("http://localhost:3000");
+
+// Validate a license key
+var result = await validator.ValidateLicenseAsync("YOUR-LICENSE-KEY");
+
+if (result.Success && result.License.IsValid)
+{
+    Console.WriteLine($"Valid license for {result.License.Game}");
+}
+else
+{
+    Console.WriteLine("Invalid license");
+}
+```
 
 ## Troubleshooting
 
@@ -122,11 +205,14 @@ If a command isn't working properly:
 
 ### License Keys
 
-License keys are generated in the format `XXXX-XXXX-XXXX-XXXX` with a prefix indicating the language:
-- C#: C...
-- Python: P...
-- JavaScript: J...
-- C++: C...
+License keys are generated in the format `XXXX-XXXX-XXXX-XXXX` with a prefix indicating the game:
+- Fortnite: F...
+- FiveM: FM...
+- GTA V: GTA...
+- Escape From Tarkov: EFT...
+- Black Ops 6: BO6...
+- Warzone: WZ...
+- Counter-Strike 2: CS2...
 
 ### Database
 
@@ -142,6 +228,7 @@ The bot uses a `.env` file for configuration:
 - `PREFIX` - Command prefix (default: `!`)
 - `OWNER_ID` - Your Discord user ID for owner privileges
 - `ADMIN_USERS` - Comma-separated list of admin user IDs
+- `API_PORT` - Port for the REST API server (default: 3000)
 
 ## License
 

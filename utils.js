@@ -68,9 +68,28 @@ function formatLicense(license) {
     expirationInfo = `Expires: ${formatDate(license.expiration_date)}`;
   }
   
+  // Game name mapping
+  const gameNames = {
+    'fortnite': 'Fortnite',
+    'fivem': 'FiveM',
+    'gtav': 'GTA V',
+    'eft': 'Escape From Tarkov',
+    'bo6': 'Black Ops 6',
+    'warzone': 'Warzone',
+    'cs2': 'Counter-Strike 2',
+    // Legacy support for old licenses
+    'c#': 'C#',
+    'python': 'Python',
+    'js': 'JavaScript',
+    'c++': 'C++'
+  };
+  
+  // Get game name (with fallback to uppercase if not found)
+  const gameName = gameNames[license.language] || license.language.toUpperCase();
+  
   return [
     `**License: ${license.license_key}**`,
-    `Language: ${license.language.toUpperCase()}`,
+    `Game: ${gameName}`,
     `Status: ${status}`,
     `Issued: ${formatDate(license.issue_date)}`,
     expirationInfo,

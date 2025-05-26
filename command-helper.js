@@ -9,6 +9,8 @@
  * @returns {Object} - Response handler
  */
 function createResponseHandler(interaction, isSlash = false) {
+  // Do NOT automatically defer - let the command decide when to defer
+  
   return {
     /**
      * Reply to the command
@@ -16,20 +18,26 @@ function createResponseHandler(interaction, isSlash = false) {
      * @param {Object} options - Additional options for slash commands
      */
     reply: async (content, options = {}) => {
-      if (isSlash) {
-        // For slash commands
-        const replyOptions = typeof content === 'string' 
-          ? { content, ...options } 
-          : content;
-        
-        if (!interaction.replied && !interaction.deferred) {
-          await interaction.reply(replyOptions);
+      try {
+        if (isSlash) {
+          // For slash commands
+          const replyOptions = typeof content === 'string' 
+            ? { content, ...options } 
+            : content;
+          
+          if (interaction.deferred && !interaction.replied) {
+            await interaction.editReply(replyOptions);
+          } else if (!interaction.replied) {
+            await interaction.reply(replyOptions);
+          } else {
+            await interaction.followUp(replyOptions);
+          }
         } else {
-          await interaction.followUp(replyOptions);
+          // For prefix commands
+          await interaction.reply(content);
         }
-      } else {
-        // For prefix commands
-        await interaction.reply(content);
+      } catch (error) {
+        console.error('Error replying to interaction:', error);
       }
     },
     
@@ -38,22 +46,27 @@ function createResponseHandler(interaction, isSlash = false) {
      * @param {string} content - Reply content
      */
     ephemeralReply: async (content) => {
-      if (isSlash) {
-        // For slash commands - use flags instead of ephemeral option
-        if (!interaction.replied && !interaction.deferred) {
-          await interaction.reply({ 
+      try {
+        if (isSlash) {
+          // For slash commands - use flags instead of ephemeral option
+          const replyOptions = {
             content,
             flags: 64 // Ephemeral flag (64)
-          });
+          };
+          
+          if (interaction.deferred && !interaction.replied) {
+            await interaction.editReply(replyOptions);
+          } else if (!interaction.replied) {
+            await interaction.reply(replyOptions);
+          } else {
+            await interaction.followUp(replyOptions);
+          }
         } else {
-          await interaction.followUp({ 
-            content,
-            flags: 64 // Ephemeral flag (64)
-          });
+          // For prefix commands (can't be ephemeral, so just regular reply)
+          await interaction.reply(content);
         }
-      } else {
-        // For prefix commands (can't be ephemeral, so just regular reply)
-        await interaction.reply(content);
+      } catch (error) {
+        console.error('Error sending ephemeral reply:', error);
       }
     },
     
@@ -63,6 +76,23 @@ function createResponseHandler(interaction, isSlash = false) {
      */
     getUser: () => {
       return isSlash ? interaction.user : interaction.author;
+    },
+    
+    /**
+     * Defer the response to indicate the bot is processing
+     * Only call this once and early in the command execution
+     */
+    defer: async (ephemeral = false) => {
+      if (isSlash && !interaction.deferred && !interaction.replied) {
+        try {
+          const options = ephemeral ? { flags: 64 } : {};
+          await interaction.deferReply(options);
+        } catch (error) {
+          console.error('Error deferring reply:', error);
+          // If we get an Unknown interaction error, the interaction is no longer valid
+          // Continue with command execution, but our replies won't work
+        }
+      }
     }
   };
 }

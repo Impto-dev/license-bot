@@ -66,13 +66,33 @@ client.on(Events.InteractionCreate, async interaction => {
 
   try {
     console.log(`User ${interaction.user.tag} (${interaction.user.id}) executing command: ${interaction.commandName}`);
+    
+    // Set a timeout to detect if the interaction times out
+    const timeoutId = setTimeout(() => {
+      console.log(`Warning: Command ${interaction.commandName} is taking a long time to execute. Interaction may time out.`);
+    }, 2000); // Discord interactions time out after ~3 seconds
+    
+    // Execute the command
     await command.execute(interaction);
+    
+    // Clear the timeout
+    clearTimeout(timeoutId);
   } catch (error) {
-    console.error(error);
-    if (interaction.replied || interaction.deferred) {
-      await interaction.followUp({ content: 'There was an error executing this command!', flags: 64 });
-    } else {
-      await interaction.reply({ content: 'There was an error executing this command!', flags: 64 });
+    console.error(`Error executing command ${interaction.commandName}:`, error);
+    
+    // Try to respond with an error message if possible
+    try {
+      const errorMessage = { content: 'There was an error executing this command!', flags: 64 };
+      
+      if (interaction.deferred && !interaction.replied) {
+        await interaction.editReply(errorMessage);
+      } else if (!interaction.replied) {
+        await interaction.reply(errorMessage);
+      } else {
+        await interaction.followUp(errorMessage);
+      }
+    } catch (replyError) {
+      console.error('Failed to send error response:', replyError);
     }
   }
 });
@@ -101,7 +121,7 @@ client.on(Events.MessageCreate, async message => {
       console.error(`Command ${commandName} is missing both executeMessage and execute methods`);
     }
   } catch (error) {
-    console.error(error);
+    console.error(`Error executing command ${commandName}:`, error);
     await message.reply('There was an error executing that command!');
   }
 });
