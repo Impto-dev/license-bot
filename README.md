@@ -11,6 +11,7 @@ A Discord bot for managing software licenses for various games including Fortnit
 - Revoke or delete licenses
 - Track license usage
 - Support for both prefix commands and slash commands
+- REST API for license validation from external applications
 
 ## Setup Instructions
 
@@ -97,12 +98,87 @@ The bot supports both traditional prefix commands (e.g., `!help`) and slash comm
 - `!revoke <license_key>` or `/revoke` - Revoke/deactivate a license
 - `!delete <license_key>` or `/delete` - Delete a license from the database
 - `!list <@user>` or `/list` - List licenses for another user
+- `!config view` or `/config view` - View current configuration
+- `!config set <setting> <value>` or `/config set` - Update configuration settings
 
 ### Available Durations
 
 - 1 Day, 3 Days, 7 Days
 - 1 Month, 3 Months, 6 Months, 9 Months, 1 Year
 - Lifetime
+
+## REST API
+
+The application includes a REST API that allows external applications to validate licenses. This is particularly useful for integrating license validation into your own software.
+
+### Starting the API Server
+
+The API server runs separately from the Discord bot:
+
+```
+node api.js
+```
+
+By default, the API server runs on port 3000. You can change this by setting the `API_PORT` environment variable in your `.env` file.
+
+### API Endpoints
+
+#### License Validation
+
+**URL:** `/api/validate`
+**Method:** `POST`
+**Body:**
+```json
+{
+  "licenseKey": "YOUR-LICENSE-KEY"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "license": {
+    "key": "YOUR-LICENSE-KEY",
+    "game": "Fortnite",
+    "gameCode": "fortnite",
+    "isValid": true,
+    "isActive": true,
+    "isExpired": false,
+    "userId": "123456789012345678",
+    "userName": "Username",
+    "email": "user@example.com",
+    "issueDate": "2023-05-01T12:00:00.000Z",
+    "expirationDate": "2023-06-01T12:00:00.000Z"
+  }
+}
+```
+
+### C# Integration
+
+The repository includes C# code that demonstrates how to integrate the license validation API into a .NET application:
+
+- `LicenseValidator.cs` - A client library for validating licenses
+- `SampleForm.cs` - A sample Windows Forms application that demonstrates usage
+
+#### Basic Usage in C#
+
+```csharp
+// Initialize the validator with the API URL
+var validator = new LicenseValidator("http://localhost:3000");
+
+// Validate a license key
+var result = await validator.ValidateLicenseAsync("YOUR-LICENSE-KEY");
+
+if (result.Success && result.License.IsValid)
+{
+    Console.WriteLine($"Valid license for {result.License.Game}");
+}
+else
+{
+    Console.WriteLine("Invalid license");
+}
+```
 
 ## Troubleshooting
 
@@ -152,6 +228,7 @@ The bot uses a `.env` file for configuration:
 - `PREFIX` - Command prefix (default: `!`)
 - `OWNER_ID` - Your Discord user ID for owner privileges
 - `ADMIN_USERS` - Comma-separated list of admin user IDs
+- `API_PORT` - Port for the REST API server (default: 3000)
 
 ## License
 
