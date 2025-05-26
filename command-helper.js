@@ -9,11 +9,8 @@
  * @returns {Object} - Response handler
  */
 function createResponseHandler(interaction, isSlash = false) {
-  // For slash commands, defer the reply immediately to prevent timeout
-  if (isSlash && !interaction.deferred && !interaction.replied) {
-    interaction.deferReply().catch(err => console.error('Error deferring reply:', err));
-  }
-
+  // Do NOT automatically defer - let the command decide when to defer
+  
   return {
     /**
      * Reply to the command
@@ -83,13 +80,17 @@ function createResponseHandler(interaction, isSlash = false) {
     
     /**
      * Defer the response to indicate the bot is processing
+     * Only call this once and early in the command execution
      */
     defer: async (ephemeral = false) => {
       if (isSlash && !interaction.deferred && !interaction.replied) {
         try {
-          await interaction.deferReply({ ephemeral });
+          const options = ephemeral ? { flags: 64 } : {};
+          await interaction.deferReply(options);
         } catch (error) {
           console.error('Error deferring reply:', error);
+          // If we get an Unknown interaction error, the interaction is no longer valid
+          // Continue with command execution, but our replies won't work
         }
       }
     }
