@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 const { setupDatabase } = require('./database');
+const { scheduleBackups } = require('./backup/backup');
 
 // Create config object from environment variables
 const config = {
@@ -51,6 +52,10 @@ for (const file of commandFiles) {
 client.once(Events.ClientReady, () => {
   console.log(`Logged in as ${client.user.tag}`);
   console.log(`Slash commands: ${Array.from(client.commands.keys()).join(', ')}`);
+  
+  // Initialize database backup scheduling
+  scheduleBackups();
+  console.log('Database backup scheduler initialized');
 });
 
 // Event handler for slash commands
