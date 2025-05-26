@@ -28,7 +28,9 @@ module.exports = {
         .setMinValue(1)),
   
   async execute(interaction) {
+    // Create a response handler
     const handler = createResponseHandler(interaction, true);
+    await handler.defer(); // Explicitly defer the reply
     
     // Check if user has admin privileges
     if (!isAdmin(handler.getUser().id, interaction.client.config)) {
@@ -79,10 +81,10 @@ module.exports = {
       }
       
       // Send success message
-      handler.reply(`✅ Created new ${language.toUpperCase()} license:\n\`${licenseKey}\`\nThis license ${expirationInfo}.`);
+      await handler.reply(`✅ Created new ${language.toUpperCase()} license:\n\`${licenseKey}\`\nThis license ${expirationInfo}.`);
     } catch (error) {
       console.error('Error creating license:', error);
-      handler.ephemeralReply('An error occurred while creating the license.');
+      await handler.ephemeralReply('An error occurred while creating the license.');
     }
   },
   
@@ -143,10 +145,10 @@ module.exports = {
       }
       
       // Send success message
-      handler.reply(`✅ Created new ${language.toUpperCase()} license:\n\`${licenseKey}\`\nThis license ${expirationInfo}.`);
+      await handler.reply(`✅ Created new ${language.toUpperCase()} license:\n\`${licenseKey}\`\nThis license ${expirationInfo}.`);
     } catch (error) {
       console.error('Error creating license:', error);
-      handler.reply('An error occurred while creating the license.');
+      await handler.reply('An error occurred while creating the license.');
     }
   }
 }; 
