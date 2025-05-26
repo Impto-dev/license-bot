@@ -156,10 +156,17 @@ By default, the API server runs on port 3000. You can change this by setting the
 
 ### C# Integration
 
-The repository includes C# code that demonstrates how to integrate the license validation API into a .NET application:
+The repository includes C# code in the `example` folder that demonstrates how to integrate the license validation API into a .NET application:
 
 - `LicenseValidator.cs` - A client library for validating licenses
-- `SampleForm.cs` - A sample Windows Forms application that demonstrates usage
+- `LoginForm.cs` - A sample Windows Forms application with login, registration, and license validation
+- `README.md` - Documentation for the C# example
+
+The sample application provides:
+- Login interface for users
+- Registration form with license key validation
+- License validation functionality
+- Tab-based interface for easy navigation
 
 #### Basic Usage in C#
 
