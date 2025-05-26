@@ -25,10 +25,9 @@ A Discord bot for managing software licenses for C#, Python, JavaScript, and C++
 2. Click "New Application" and give it a name
 3. Go to the "Bot" tab and click "Add Bot"
 4. Under the "TOKEN" section, click "Copy" to copy your bot token
-5. Under "Privileged Gateway Intents", enable:
-   - Presence Intent
-   - Server Members Intent
-   - Message Content Intent
+5. Under "Privileged Gateway Intents", **IMPORTANT**: Enable the following intents:
+   - **Message Content Intent** (required for prefix commands)
+   - Server Members Intent (optional)
 6. Note your application ID from the "General Information" tab (needed for slash commands)
 
 ### Step 2: Invite the Bot to Your Server
@@ -97,6 +96,27 @@ The bot supports both traditional prefix commands (e.g., `!help`) and slash comm
 - `!revoke <license_key>` or `/revoke` - Revoke/deactivate a license
 - `!delete <license_key>` or `/delete` - Delete a license from the database
 - `!list <@user>` or `/list` - List licenses for another user
+
+## Troubleshooting
+
+### "Used disallowed intents" Error
+
+If you see an error like `Error: Used disallowed intents`, you need to enable the required intents in the Discord Developer Portal:
+
+1. Go to the [Discord Developer Portal](https://discord.com/developers/applications)
+2. Select your application
+3. Go to the "Bot" tab
+4. Under "Privileged Gateway Intents", enable "Message Content Intent"
+5. Save changes and restart your bot
+
+### Command Not Working
+
+If a command isn't working properly:
+
+1. Check the console for error messages
+2. Make sure you've registered slash commands with `npm run deploy`
+3. Verify that the bot has the necessary permissions in your Discord server
+4. Try using both the prefix version (`!command`) and slash version (`/command`)
 
 ## How It Works
 

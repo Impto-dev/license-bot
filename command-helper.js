@@ -39,11 +39,17 @@ function createResponseHandler(interaction, isSlash = false) {
      */
     ephemeralReply: async (content) => {
       if (isSlash) {
-        // For slash commands
+        // For slash commands - use flags instead of ephemeral option
         if (!interaction.replied && !interaction.deferred) {
-          await interaction.reply({ content, ephemeral: true });
+          await interaction.reply({ 
+            content,
+            flags: 64 // Ephemeral flag (64)
+          });
         } else {
-          await interaction.followUp({ content, ephemeral: true });
+          await interaction.followUp({ 
+            content,
+            flags: 64 // Ephemeral flag (64)
+          });
         }
       } else {
         // For prefix commands (can't be ephemeral, so just regular reply)

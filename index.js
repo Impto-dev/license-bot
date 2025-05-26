@@ -11,12 +11,12 @@ const config = {
   adminUsers: process.env.ADMIN_USERS ? process.env.ADMIN_USERS.split(',').map(id => id.trim()) : []
 };
 
-// Create a new client instance
+// Create a new client instance with the minimum required intents
 const client = new Client({
   intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.Guilds,           // Needed for basic functionality
+    GatewayIntentBits.GuildMessages,     // Needed for message commands
+    GatewayIntentBits.MessageContent     // Needed to read message content for prefix commands
   ]
 });
 
@@ -44,6 +44,7 @@ for (const file of commandFiles) {
 // Event handler for ready event
 client.once(Events.ClientReady, () => {
   console.log(`Logged in as ${client.user.tag}`);
+  console.log(`Slash commands: ${Array.from(client.commands.keys()).join(', ')}`);
 });
 
 // Event handler for slash commands
@@ -62,9 +63,9 @@ client.on(Events.InteractionCreate, async interaction => {
   } catch (error) {
     console.error(error);
     if (interaction.replied || interaction.deferred) {
-      await interaction.followUp({ content: 'There was an error executing this command!', ephemeral: true });
+      await interaction.followUp({ content: 'There was an error executing this command!', flags: 64 });
     } else {
-      await interaction.reply({ content: 'There was an error executing this command!', ephemeral: true });
+      await interaction.reply({ content: 'There was an error executing this command!', flags: 64 });
     }
   }
 });
