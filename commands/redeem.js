@@ -3,6 +3,22 @@ const { isLicenseExpired } = require('../utils');
 const { SlashCommandBuilder } = require('discord.js');
 const { createResponseHandler } = require('../command-helper');
 
+// Game name mapping
+const gameNames = {
+  'fortnite': 'Fortnite',
+  'fivem': 'FiveM',
+  'gtav': 'GTA V',
+  'eft': 'Escape From Tarkov',
+  'bo6': 'Black Ops 6',
+  'warzone': 'Warzone',
+  'cs2': 'Counter-Strike 2',
+  // Legacy support for old licenses
+  'c#': 'C#',
+  'python': 'Python',
+  'js': 'JavaScript',
+  'c++': 'C++'
+};
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('redeem')
@@ -59,8 +75,11 @@ module.exports = {
       // Assign license to user
       await assignLicense(license.id, userId, userName);
       
+      // Get game name (with fallback to uppercase if not found)
+      const gameName = gameNames[license.language] || license.language.toUpperCase();
+      
       // Format response message
-      const responseMessage = `✅ Successfully redeemed license for ${license.language.toUpperCase()}!\n` +
+      const responseMessage = `✅ Successfully redeemed license for ${gameName}!\n` +
                              `License key: \`${licenseKey}\``;
       
       // Try to send the response
@@ -133,7 +152,10 @@ module.exports = {
       // Assign license to user
       await assignLicense(license.id, userId, userName);
       
-      await handler.reply(`✅ Successfully redeemed license for ${license.language.toUpperCase()}!\n` +
+      // Get game name (with fallback to uppercase if not found)
+      const gameName = gameNames[license.language] || license.language.toUpperCase();
+      
+      await handler.reply(`✅ Successfully redeemed license for ${gameName}!\n` +
                         `License key: \`${licenseKey}\``);
     } catch (error) {
       console.error('Error redeeming license:', error);

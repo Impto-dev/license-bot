@@ -27,12 +27,15 @@ module.exports = {
       // Admin-only commands
       if (isUserAdmin) {
         helpText += `**Admin Commands:**\n`;
-        helpText += `\`${prefix}create <language> [email] [expiration_days]\` or \`/create\` - Create a new license\n`;
+        helpText += `\`${prefix}create <game> [email] [expiration_days]\` or \`/create\` - Create a new license\n`;
         helpText += `\`${prefix}assign <license_key> <@user>\` or \`/assign\` - Assign a license to a user\n`;
         helpText += `\`${prefix}revoke <license_key>\` or \`/revoke\` - Revoke/deactivate a license\n`;
         helpText += `\`${prefix}delete <license_key>\` or \`/delete\` - Delete a license from the database\n`;
         helpText += `\`${prefix}list <@user>\` or \`/list\` - List licenses for another user\n`;
       }
+
+      helpText += `\n**Available Games:**\n`;
+      helpText += `Fortnite, FiveM, GTA V, Escape From Tarkov (EFT), Black Ops 6 (BO6), Warzone, Counter-Strike 2 (CS2)`;
       
       // Reply based on interaction type
       await handler.reply(helpText);
@@ -70,12 +73,15 @@ module.exports = {
     // Admin-only commands
     if (isUserAdmin) {
       helpText += `**Admin Commands:**\n`;
-      helpText += `\`${prefix}create <language> [email] [expiration_days]\` or \`/create\` - Create a new license\n`;
+      helpText += `\`${prefix}create <game> [email] [expiration_days]\` or \`/create\` - Create a new license\n`;
       helpText += `\`${prefix}assign <license_key> <@user>\` or \`/assign\` - Assign a license to a user\n`;
       helpText += `\`${prefix}revoke <license_key>\` or \`/revoke\` - Revoke/deactivate a license\n`;
       helpText += `\`${prefix}delete <license_key>\` or \`/delete\` - Delete a license from the database\n`;
       helpText += `\`${prefix}list <@user>\` or \`/list\` - List licenses for another user\n`;
     }
+
+    helpText += `\n**Available Games:**\n`;
+    helpText += `Fortnite, FiveM, GTA V, Escape From Tarkov (EFT), Black Ops 6 (BO6), Warzone, Counter-Strike 2 (CS2)`;
     
     await message.reply(helpText);
   }

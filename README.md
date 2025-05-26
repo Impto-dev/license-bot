@@ -1,10 +1,10 @@
 # Discord License Manager Bot
 
-A Discord bot for managing software licenses for C#, Python, JavaScript, and C++ projects.
+A Discord bot for managing software licenses for various games including Fortnite, FiveM, GTA V, Escape From Tarkov, Black Ops 6, Warzone, and Counter-Strike 2.
 
 ## Features
 
-- Generate and manage license keys for multiple programming languages
+- Generate and manage license keys for multiple game categories
 - Assign licenses to Discord users
 - Verify license validity
 - Set expiration dates for licenses
@@ -92,7 +92,7 @@ The bot supports both traditional prefix commands (e.g., `!help`) and slash comm
 
 ### Admin Commands
 
-- `!create <language> [email] [expiration_days]` or `/create` - Create a new license
+- `!create <game> [email] [expiration_days]` or `/create` - Create a new license
 - `!assign <license_key> <@user>` or `/assign` - Assign a license to a user
 - `!revoke <license_key>` or `/revoke` - Revoke/deactivate a license
 - `!delete <license_key>` or `/delete` - Delete a license from the database
@@ -123,11 +123,14 @@ If a command isn't working properly:
 
 ### License Keys
 
-License keys are generated in the format `XXXX-XXXX-XXXX-XXXX` with a prefix indicating the language:
-- C#: C...
-- Python: P...
-- JavaScript: J...
-- C++: C...
+License keys are generated in the format `XXXX-XXXX-XXXX-XXXX` with a prefix indicating the game:
+- Fortnite: F...
+- FiveM: FM...
+- GTA V: GTA...
+- Escape From Tarkov: EFT...
+- Black Ops 6: BO6...
+- Warzone: WZ...
+- Counter-Strike 2: CS2...
 
 ### Database
 

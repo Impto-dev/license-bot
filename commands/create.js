@@ -3,20 +3,34 @@ const { isAdmin } = require('../utils');
 const { SlashCommandBuilder } = require('discord.js');
 const { createResponseHandler } = require('../command-helper');
 
+// Define game categories
+const validGames = [
+  { name: 'Fortnite', value: 'fortnite', prefix: 'F' },
+  { name: 'FiveM', value: 'fivem', prefix: 'FM' },
+  { name: 'GTA V', value: 'gtav', prefix: 'GTA' },
+  { name: 'Escape From Tarkov', value: 'eft', prefix: 'EFT' },
+  { name: 'Black Ops 6', value: 'bo6', prefix: 'BO6' },
+  { name: 'Warzone', value: 'warzone', prefix: 'WZ' },
+  { name: 'Counter-Strike 2', value: 'cs2', prefix: 'CS2' }
+];
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('create')
     .setDescription('Create a new license key')
-    .addStringOption(option => 
-      option.setName('language')
-        .setDescription('Programming language for the license')
-        .setRequired(true)
-        .addChoices(
-          { name: 'C#', value: 'c#' },
-          { name: 'Python', value: 'python' },
-          { name: 'JavaScript', value: 'js' },
-          { name: 'C++', value: 'c++' }
-        ))
+    .addStringOption(option => {
+      const gameOption = option
+        .setName('game')
+        .setDescription('Game for the license')
+        .setRequired(true);
+      
+      // Add each game as a choice
+      validGames.forEach(game => {
+        gameOption.addChoices({ name: game.name, value: game.value });
+      });
+      
+      return gameOption;
+    })
     .addStringOption(option => 
       option.setName('email')
         .setDescription('Email to associate with the license')
@@ -46,19 +60,18 @@ module.exports = {
       }
 
       // Get options from the interaction
-      const language = interaction.options.getString('language');
+      const gameValue = interaction.options.getString('game');
       const email = interaction.options.getString('email');
       const expirationDays = interaction.options.getInteger('expiration_days');
 
-      // Validate language (should be redundant with choices, but good practice)
-      const validLanguages = ['c#', 'python', 'js', 'c++'];
-      if (!validLanguages.includes(language)) {
-        return await handler.ephemeralReply(`Invalid language. Please use one of: ${validLanguages.join(', ')}`);
+      // Validate game
+      const gameInfo = validGames.find(g => g.value === gameValue);
+      if (!gameInfo) {
+        return await handler.ephemeralReply(`Invalid game. Please select one of the available options.`);
       }
 
-      // Generate license key
-      const prefix = language.charAt(0).toUpperCase();
-      const licenseKey = generateLicenseKey(prefix);
+      // Generate license key with game prefix
+      const licenseKey = generateLicenseKey(gameInfo.prefix);
       
       // Prepare license data
       const issueDate = Math.floor(Date.now() / 1000);
@@ -70,7 +83,7 @@ module.exports = {
       
       const licenseData = {
         license_key: licenseKey,
-        language,
+        language: gameValue, // Keep 'language' field name for database compatibility
         email,
         issue_date: issueDate,
         expiration_date: expirationDate,
@@ -88,7 +101,7 @@ module.exports = {
       }
       
       // Generate response message
-      const responseMessage = `✅ Created new ${language.toUpperCase()} license:\n\`${licenseKey}\`\nThis license ${expirationInfo}.`;
+      const responseMessage = `✅ Created new ${gameInfo.name} license:\n\`${licenseKey}\`\nThis license ${expirationInfo}.`;
       
       // Try to send the response
       try {
@@ -134,22 +147,23 @@ module.exports = {
 
     // Validate arguments
     if (args.length < 1) {
-      return await handler.reply('Usage: !create <language> [email] [expiration_days]');
+      const gameList = validGames.map(g => g.value).join(', ');
+      return await handler.reply(`Usage: !create <game> [email] [expiration_days]\nAvailable games: ${gameList}`);
     }
 
-    const language = args[0].toLowerCase();
+    const gameValue = args[0].toLowerCase();
     const email = args.length > 1 ? args[1] : null;
     const expirationDays = args.length > 2 ? parseInt(args[2]) : null;
 
-    // Validate language
-    const validLanguages = ['c#', 'python', 'js', 'c++'];
-    if (!validLanguages.includes(language)) {
-      return await handler.reply(`Invalid language. Please use one of: ${validLanguages.join(', ')}`);
+    // Validate game
+    const gameInfo = validGames.find(g => g.value === gameValue);
+    if (!gameInfo) {
+      const gameList = validGames.map(g => g.value).join(', ');
+      return await handler.reply(`Invalid game. Please use one of: ${gameList}`);
     }
 
-    // Generate license key
-    const prefix = language.charAt(0).toUpperCase();
-    const licenseKey = generateLicenseKey(prefix);
+    // Generate license key with game prefix
+    const licenseKey = generateLicenseKey(gameInfo.prefix);
     
     // Prepare license data
     const issueDate = Math.floor(Date.now() / 1000);
@@ -161,7 +175,7 @@ module.exports = {
     
     const licenseData = {
       license_key: licenseKey,
-      language,
+      language: gameValue, // Keep 'language' field name for database compatibility
       email,
       issue_date: issueDate,
       expiration_date: expirationDate,
@@ -180,7 +194,7 @@ module.exports = {
       }
       
       // Send success message
-      await handler.reply(`✅ Created new ${language.toUpperCase()} license:\n\`${licenseKey}\`\nThis license ${expirationInfo}.`);
+      await handler.reply(`✅ Created new ${gameInfo.name} license:\n\`${licenseKey}\`\nThis license ${expirationInfo}.`);
     } catch (error) {
       console.error('Error creating license:', error);
       await handler.reply('An error occurred while creating the license.');
