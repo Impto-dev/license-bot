@@ -14,6 +14,7 @@ const envPath = path.join(__dirname, '.env');
 // Read existing .env file or create a new one
 let envVars = {
   DISCORD_TOKEN: 'your_discord_bot_token_here',
+  CLIENT_ID: 'your_application_id_here',
   PREFIX: '!',
   ADMIN_USERS: ''
 };
@@ -46,38 +47,46 @@ rl.question(`Enter your Discord bot token (press Enter to keep current token): `
     envVars.DISCORD_TOKEN = token.trim();
   }
   
-  // Get command prefix
-  rl.question(`Enter command prefix (currently "${envVars.PREFIX}"): `, (prefix) => {
-    if (prefix && prefix.trim() !== '') {
-      envVars.PREFIX = prefix.trim();
+  // Get Discord application ID (for slash commands)
+  rl.question(`Enter your Discord application ID (press Enter to keep current ID): `, (clientId) => {
+    if (clientId && clientId.trim() !== '') {
+      envVars.CLIENT_ID = clientId.trim();
     }
-    
-    // Get owner ID
-    rl.question(`Enter your Discord user ID (for owner privileges): `, (ownerId) => {
-      if (ownerId && ownerId.trim() !== '') {
-        envVars.OWNER_ID = ownerId.trim();
+  
+    // Get command prefix
+    rl.question(`Enter command prefix (currently "${envVars.PREFIX}"): `, (prefix) => {
+      if (prefix && prefix.trim() !== '') {
+        envVars.PREFIX = prefix.trim();
       }
       
-      // Get admin users
-      rl.question(`Enter additional admin user IDs (comma-separated): `, (adminIds) => {
-        if (adminIds && adminIds.trim() !== '') {
-          envVars.ADMIN_USERS = adminIds.trim();
+      // Get owner ID
+      rl.question(`Enter your Discord user ID (for owner privileges): `, (ownerId) => {
+        if (ownerId && ownerId.trim() !== '') {
+          envVars.OWNER_ID = ownerId.trim();
         }
         
-        // Save to .env file
-        let envContent = '# Discord Bot Configuration\n';
-        
-        // Add each environment variable
-        for (const [key, value] of Object.entries(envVars)) {
-          envContent += `${key}=${value}\n`;
-        }
-        
-        fs.writeFileSync(envPath, envContent);
-        
-        console.log('\nConfiguration saved to .env file!');
-        console.log('\nTo start the bot, run: npm start');
-        
-        rl.close();
+        // Get admin users
+        rl.question(`Enter additional admin user IDs (comma-separated): `, (adminIds) => {
+          if (adminIds && adminIds.trim() !== '') {
+            envVars.ADMIN_USERS = adminIds.trim();
+          }
+          
+          // Save to .env file
+          let envContent = '# Discord Bot Configuration\n';
+          
+          // Add each environment variable
+          for (const [key, value] of Object.entries(envVars)) {
+            envContent += `${key}=${value}\n`;
+          }
+          
+          fs.writeFileSync(envPath, envContent);
+          
+          console.log('\nConfiguration saved to .env file!');
+          console.log('\nTo register slash commands, run: npm run deploy');
+          console.log('To start the bot, run: npm start');
+          
+          rl.close();
+        });
       });
     });
   });

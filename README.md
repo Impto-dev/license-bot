@@ -10,6 +10,7 @@ A Discord bot for managing software licenses for C#, Python, JavaScript, and C++
 - Set expiration dates for licenses
 - Revoke or delete licenses
 - Track license usage
+- Support for both prefix commands and slash commands
 
 ## Setup Instructions
 
@@ -28,6 +29,7 @@ A Discord bot for managing software licenses for C#, Python, JavaScript, and C++
    - Presence Intent
    - Server Members Intent
    - Message Content Intent
+6. Note your application ID from the "General Information" tab (needed for slash commands)
 
 ### Step 2: Invite the Bot to Your Server
 
@@ -51,17 +53,28 @@ A Discord bot for managing software licenses for C#, Python, JavaScript, and C++
    ```
 3. Run the setup script to configure your bot:
    ```
-   node setup.js
+   npm run setup
    ```
    Follow the prompts to enter your:
    - Discord bot token
+   - Discord application ID (for slash commands)
    - Command prefix (default is `!`)
    - Your Discord user ID (for owner privileges)
    - Additional admin user IDs (comma-separated)
 
 Alternatively, you can manually create a `.env` file based on the `.env-example` template.
 
-### Step 4: Run the Bot
+### Step 4: Register Slash Commands
+
+To register slash commands with Discord:
+
+```
+npm run deploy
+```
+
+This only needs to be done once after setting up or when you modify command definitions.
+
+### Step 5: Run the Bot
 
 ```
 npm start
@@ -69,19 +82,21 @@ npm start
 
 ## Command Usage
 
+The bot supports both traditional prefix commands (e.g., `!help`) and slash commands (e.g., `/help`).
+
 ### General Commands
 
-- `!help` - Show available commands
-- `!verify <license_key>` - Verify a license key
-- `!list` - List your licenses
+- `!help` or `/help` - Show available commands
+- `!verify <license_key>` or `/verify` - Verify a license key
+- `!list` or `/list` - List your licenses
 
 ### Admin Commands
 
-- `!create <language> [email] [expiration_days]` - Create a new license
-- `!assign <license_key> <@user>` - Assign a license to a user
-- `!revoke <license_key>` - Revoke/deactivate a license
-- `!delete <license_key>` - Delete a license from the database
-- `!list <@user>` - List licenses for another user
+- `!create <language> [email] [expiration_days]` or `/create` - Create a new license
+- `!assign <license_key> <@user>` or `/assign` - Assign a license to a user
+- `!revoke <license_key>` or `/revoke` - Revoke/deactivate a license
+- `!delete <license_key>` or `/delete` - Delete a license from the database
+- `!list <@user>` or `/list` - List licenses for another user
 
 ## How It Works
 
@@ -103,6 +118,7 @@ The bot uses SQLite to store license information locally:
 
 The bot uses a `.env` file for configuration:
 - `DISCORD_TOKEN` - Your Discord bot token
+- `CLIENT_ID` - Your Discord application ID (for slash commands)
 - `PREFIX` - Command prefix (default: `!`)
 - `OWNER_ID` - Your Discord user ID for owner privileges
 - `ADMIN_USERS` - Comma-separated list of admin user IDs

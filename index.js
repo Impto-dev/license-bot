@@ -41,11 +41,35 @@ for (const file of commandFiles) {
   }
 }
 
-// Event handler
+// Event handler for ready event
 client.once(Events.ClientReady, () => {
   console.log(`Logged in as ${client.user.tag}`);
 });
 
+// Event handler for slash commands
+client.on(Events.InteractionCreate, async interaction => {
+  if (!interaction.isChatInputCommand()) return;
+
+  const command = client.commands.get(interaction.commandName);
+
+  if (!command) {
+    console.error(`No command matching ${interaction.commandName} was found.`);
+    return;
+  }
+
+  try {
+    await command.execute(interaction);
+  } catch (error) {
+    console.error(error);
+    if (interaction.replied || interaction.deferred) {
+      await interaction.followUp({ content: 'There was an error executing this command!', ephemeral: true });
+    } else {
+      await interaction.reply({ content: 'There was an error executing this command!', ephemeral: true });
+    }
+  }
+});
+
+// Event handler for prefix commands
 client.on(Events.MessageCreate, async message => {
   if (message.author.bot) return;
   if (!message.content.startsWith(config.prefix)) return;
@@ -58,7 +82,12 @@ client.on(Events.MessageCreate, async message => {
   if (!command) return;
 
   try {
-    await command.execute(message, args);
+    // For backwards compatibility with prefix commands
+    if (command.executeMessage) {
+      await command.executeMessage(message, args);
+    } else {
+      await command.execute(message, args);
+    }
   } catch (error) {
     console.error(error);
     await message.reply('There was an error executing that command!');
