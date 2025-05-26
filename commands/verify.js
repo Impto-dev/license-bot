@@ -2,6 +2,22 @@ const { getLicenseByKey } = require('../database');
 const { formatLicense, isLicenseExpired } = require('../utils');
 const { SlashCommandBuilder } = require('discord.js');
 
+// Game name mapping
+const gameNames = {
+  'fortnite': 'Fortnite',
+  'fivem': 'FiveM',
+  'gtav': 'GTA V',
+  'eft': 'Escape From Tarkov',
+  'bo6': 'Black Ops 6',
+  'warzone': 'Warzone',
+  'cs2': 'Counter-Strike 2',
+  // Legacy support for old licenses
+  'c#': 'C#',
+  'python': 'Python',
+  'js': 'JavaScript',
+  'c++': 'C++'
+};
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('verify')
@@ -34,8 +50,11 @@ module.exports = {
         return interaction.reply({ content: '⏱️ This license has expired.', ephemeral: true });
       }
       
+      // Get game name (with fallback to uppercase if not found)
+      const gameName = gameNames[license.language] || license.language.toUpperCase();
+      
       // License is valid
-      interaction.reply(`✅ Valid license for ${license.language.toUpperCase()}:\n${formatLicense(license)}`);
+      interaction.reply(`✅ Valid license for ${gameName}:\n${formatLicense(license)}`);
     } catch (error) {
       console.error('Error verifying license:', error);
       interaction.reply({ content: 'An error occurred while verifying the license.', ephemeral: true });
@@ -70,8 +89,11 @@ module.exports = {
         return message.reply('⏱️ This license has expired.');
       }
       
+      // Get game name (with fallback to uppercase if not found)
+      const gameName = gameNames[license.language] || license.language.toUpperCase();
+      
       // License is valid
-      message.reply(`✅ Valid license for ${license.language.toUpperCase()}:\n${formatLicense(license)}`);
+      message.reply(`✅ Valid license for ${gameName}:\n${formatLicense(license)}`);
     } catch (error) {
       console.error('Error verifying license:', error);
       message.reply('An error occurred while verifying the license.');
