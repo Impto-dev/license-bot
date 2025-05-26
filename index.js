@@ -8,8 +8,14 @@ const { setupDatabase } = require('./database');
 const config = {
   token: process.env.DISCORD_TOKEN,
   prefix: process.env.PREFIX || '!',
+  ownerId: process.env.OWNER_ID,
   adminUsers: process.env.ADMIN_USERS ? process.env.ADMIN_USERS.split(',').map(id => id.trim()) : []
 };
+
+console.log('Admin config:', { 
+  ownerId: config.ownerId, 
+  adminCount: config.adminUsers.length
+});
 
 // Create a new client instance with the minimum required intents
 const client = new Client({
@@ -59,6 +65,7 @@ client.on(Events.InteractionCreate, async interaction => {
   }
 
   try {
+    console.log(`User ${interaction.user.tag} (${interaction.user.id}) executing command: ${interaction.commandName}`);
     await command.execute(interaction);
   } catch (error) {
     console.error(error);
@@ -83,6 +90,7 @@ client.on(Events.MessageCreate, async message => {
   if (!command) return;
 
   try {
+    console.log(`User ${message.author.tag} (${message.author.id}) executing command: ${commandName}`);
     // For backwards compatibility with prefix commands
     if (command.executeMessage) {
       await command.executeMessage(message, args);

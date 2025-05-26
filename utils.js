@@ -5,13 +5,22 @@
  * @returns {boolean} - True if user is an admin
  */
 function isAdmin(userId, config) {
-  // If no admin users are specified, only the bot owner can use admin commands
-  if (!config.adminUsers || config.adminUsers.length === 0) {
-    return userId === process.env.OWNER_ID;
+  console.log(`Checking admin status for user ${userId}`, {
+    configOwnerId: config.ownerId,
+    envOwnerId: process.env.OWNER_ID,
+    adminUsers: config.adminUsers
+  });
+  
+  // If user ID matches owner ID, they're an admin
+  if (userId === config.ownerId || userId === process.env.OWNER_ID) {
+    console.log(`User ${userId} is the owner`);
+    return true;
   }
   
   // Check if user is in the admin list
-  return config.adminUsers.includes(userId);
+  const isInAdminList = config.adminUsers && config.adminUsers.includes(userId);
+  console.log(`User ${userId} is ${isInAdminList ? '' : 'not '}in admin list`);
+  return isInAdminList;
 }
 
 /**

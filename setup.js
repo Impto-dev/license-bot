@@ -16,6 +16,7 @@ let envVars = {
   DISCORD_TOKEN: 'your_discord_bot_token_here',
   CLIENT_ID: 'your_application_id_here',
   PREFIX: '!',
+  OWNER_ID: '',
   ADMIN_USERS: ''
 };
 
@@ -60,12 +61,20 @@ rl.question(`Enter your Discord bot token (press Enter to keep current token): `
       }
       
       // Get owner ID
-      rl.question(`Enter your Discord user ID (for owner privileges): `, (ownerId) => {
+      console.log('\nIMPORTANT: The owner ID grants full admin access to the bot.');
+      console.log('To get your Discord User ID:');
+      console.log('1. Enable Developer Mode in Discord (User Settings > Advanced)');
+      console.log('2. Right-click on your username and select "Copy ID"');
+      
+      rl.question(`Enter your Discord user ID for owner privileges: `, (ownerId) => {
         if (ownerId && ownerId.trim() !== '') {
           envVars.OWNER_ID = ownerId.trim();
         }
         
         // Get admin users
+        console.log('\nYou can add additional admin users (comma-separated Discord user IDs)');
+        console.log('Example: 123456789012345678,987654321098765432');
+        
         rl.question(`Enter additional admin user IDs (comma-separated): `, (adminIds) => {
           if (adminIds && adminIds.trim() !== '') {
             envVars.ADMIN_USERS = adminIds.trim();
@@ -82,6 +91,11 @@ rl.question(`Enter your Discord bot token (press Enter to keep current token): `
           fs.writeFileSync(envPath, envContent);
           
           console.log('\nConfiguration saved to .env file!');
+          
+          if (!envVars.OWNER_ID) {
+            console.log('\nWARNING: No owner ID set. You won\'t be able to use admin commands.');
+          }
+          
           console.log('\nTo register slash commands, run: npm run deploy');
           console.log('To start the bot, run: npm start');
           
